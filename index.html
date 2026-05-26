@@ -280,7 +280,7 @@ function downloadPDF(){
     const bg=isFail?[255,235,235]:idx%2===0?[255,255,255]:[248,248,248];
     doc.setFillColor(...bg); doc.setDrawColor(200,200,200); doc.setLineWidth(0.3);
     cols.forEach(w=>{doc.rect(x,ry,w,rH,'FD');x+=w;});
-    const vals=[r.step,r.p_rail,r.pw,r.q_ref,r.q_real,r.bip,r.assess==='pass'?'\u2713':'\u2717'];
+    const vals=[r.step,r.p_rail,r.pw,r.q_ref,r.q_real,r.bip,r.assess==='pass'?'PASS':'FAIL'];
     x=14;
     cols.forEach((w,ci)=>{
       doc.setFont('helvetica',ci===0?'bold':'normal');
