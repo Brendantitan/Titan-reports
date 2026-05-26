@@ -68,6 +68,7 @@
   </div>
 </header>
 <main>
+
   <div class="card">
     <div class="card-title">🔑 Anthropic API Key</div>
     <label>Your API key — saved in your browser automatically</label>
@@ -78,8 +79,9 @@
     <div id="keyStatus"></div>
     <p class="key-note">Get a key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> → API Keys → Create Key</p>
   </div>
+
   <div class="card">
-    <div class="card-title">① Customer & Vehicle Details</div>
+    <div class="card-title">① Customer &amp; Vehicle Details</div>
     <div class="grid2" style="margin-bottom:14px">
       <div><label>Client Name *</label><input type="text" id="clientName" placeholder="e.g. Jamie Hynes" oninput="checkReady()"/></div>
       <div><label>Vehicle Rego *</label><input type="text" id="vehicleRego" placeholder="e.g. ABC123" oninput="checkReady()"/></div>
@@ -89,6 +91,7 @@
       <div><label>Test Date</label><input type="text" id="testDate" placeholder="e.g. 25/05/2026"/></div>
     </div>
   </div>
+
   <div class="card">
     <div class="card-title">② Upload Test Results Photo</div>
     <div class="upload-zone" id="uploadZone">
@@ -99,10 +102,12 @@
     </div>
     <img id="photoPreview"/>
   </div>
+
   <button class="btn-main" id="generateBtn" onclick="generateReport()" disabled>Generate Report</button>
   <div class="status" id="statusBox"></div>
+
   <div class="card" id="cardPreview" style="display:none;margin-top:16px">
-    <div class="card-title">③ Review & Edit Before Download</div>
+    <div class="card-title">③ Review &amp; Edit Before Download</div>
     <div class="grid2" style="margin-bottom:14px">
       <div><label>Part Number</label><input type="text" id="partNumber" placeholder="e.g. 095000-7780"/></div>
       <div><label>Manufacturer</label><input type="text" id="manufacturer" placeholder="e.g. Denso"/></div>
@@ -116,29 +121,201 @@
     <button class="btn-dark" onclick="downloadPDF()">⬇ Download PDF Report</button>
     <button class="btn-reset" onclick="resetApp()">Start New Report</button>
   </div>
+
 </main>
 <script>
-let photoBase64=null,photoMime='image/jpeg',extractedData=null,logoDataUrl=null;
+let photoBase64=null, photoMime='image/jpeg', extractedData=null, logoDataUrl=null;
 fetch("logo.jpg").then(r=>r.blob()).then(b=>{const rd=new FileReader();rd.onload=e=>{logoDataUrl=e.target.result;};rd.readAsDataURL(b);});
+
 window.addEventListener('DOMContentLoaded',()=>{
-  try{const s=localStorage.getItem('titan_api_key');if(s){document.getElementById('apiKey').value=s;setKeyStatus('loaded');}}catch(e){}
+  try { const s=localStorage.getItem('titan_api_key'); if(s){document.getElementById('apiKey').value=s;setKeyStatus('loaded');} } catch(e){}
   const t=new Date();
   document.getElementById('testDate').value=String(t.getDate()).padStart(2,'0')+'/'+String(t.getMonth()+1).padStart(2,'0')+'/'+t.getFullYear();
 });
-function setKeyStatus(s){const el=document.getElementById('keyStatus');if(s==='saved'){el.style.color='#4ade80';el.textContent='✅ Key saved — will auto-fill next time';}else if(s==='loaded'){el.style.color='#4ade80';el.textContent='✅ Key loaded from saved memory';}else if(s==='bad'){el.style.color='#fb923c';el.textContent='⚠️ Key does not look valid yet';}else{el.textContent='';}}
-function saveKey(){const k=document.getElementById('apiKey').value.trim();try{if(k.startsWith('sk-ant-')&&k.length>20){localStorage.setItem('titan_api_key',k);setKeyStatus('saved');}else if(k.length>0){setKeyStatus('bad');}else{localStorage.removeItem('titan_api_key');setKeyStatus('');}}catch(e){}checkReady();}
+
+function setKeyStatus(s){
+  const el=document.getElementById('keyStatus');
+  if(s==='saved'){el.style.color='#4ade80';el.textContent='✅ Key saved — will auto-fill next time';}
+  else if(s==='loaded'){el.style.color='#4ade80';el.textContent='✅ Key loaded from saved memory';}
+  else if(s==='bad'){el.style.color='#fb923c';el.textContent='⚠️ Key does not look valid yet';}
+  else{el.textContent='';}
+}
+
+function saveKey(){
+  const k=document.getElementById('apiKey').value.trim();
+  try{
+    if(k.startsWith('sk-ant-')&&k.length>20){localStorage.setItem('titan_api_key',k);setKeyStatus('saved');}
+    else if(k.length>0){setKeyStatus('bad');}
+    else{localStorage.removeItem('titan_api_key');setKeyStatus('');}
+  }catch(e){}
+  checkReady();
+}
+
 function toggleKey(){const i=document.getElementById('apiKey');i.type=i.type==='password'?'text':'password';}
-function checkReady(){const name=document.getElementById('clientName').value.trim();const rego=document.getElementById('vehicleRego').value.trim();const key=document.getElementById('apiKey').value.trim();document.getElementById('generateBtn').disabled=!(name&&rego&&key&&photoBase64);}
-function handlePhoto(e){const file=e.target.files[0];if(!file)return;photoMime=file.type||'image/jpeg';const reader=new FileReader();reader.onload=ev=>{photoBase64=ev.target.result.split(',')[1];const p=document.getElementById('photoPreview');p.src=ev.target.result;p.style.display='block';checkReady();};reader.readAsDataURL(file);}
+
+function checkReady(){
+  const name=document.getElementById('clientName').value.trim();
+  const rego=document.getElementById('vehicleRego').value.trim();
+  const key=document.getElementById('apiKey').value.trim();
+  document.getElementById('generateBtn').disabled=!(name&&rego&&key&&photoBase64);
+}
+
+function handlePhoto(e){
+  const file=e.target.files[0]; if(!file)return;
+  photoMime=file.type||'image/jpeg';
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    photoBase64=ev.target.result.split(',')[1];
+    const p=document.getElementById('photoPreview');
+    p.src=ev.target.result; p.style.display='block';
+    checkReady();
+  };
+  reader.readAsDataURL(file);
+}
+
 const zone=document.getElementById('uploadZone');
 zone.addEventListener('dragover',e=>{e.preventDefault();zone.style.borderColor='var(--orange)';});
 zone.addEventListener('dragleave',()=>{zone.style.borderColor='';});
 zone.addEventListener('drop',e=>{e.preventDefault();zone.style.borderColor='';const f=e.dataTransfer.files[0];if(f)handlePhoto({target:{files:[f]}});});
+
 function showStatus(msg,type){const b=document.getElementById('statusBox');b.style.display='block';b.className='status '+type;b.innerHTML=msg;}
-async function generateReport(){const btn=document.getElementById('generateBtn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Reading test photo...';showStatus('<span class="spinner"></span> Claude AI is reading your photo...','info');try{const resp=await fetch('/api/extract',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({imageBase64:photoBase64,imageMime:photoMime,apiKey:document.getElementById('apiKey').value.trim()})});const data=await resp.json();if(!resp.ok)throw new Error(data.error||'API error');extractedData=data;showExtracted();showStatus('✅ Data extracted — review below then download your PDF.','success');}catch(err){showStatus('❌ Error: '+err.message,'error');btn.disabled=false;btn.innerHTML='Generate Report';}}
-function showExtracted(){document.getElementById('cardPreview').style.display='block';const d=extractedData;document.getElementById('partNumber').value=d.part_number||'';document.getElementById('manufacturer').value=d.manufacturer||'';document.getElementById('serialNumber').value=d.serial_number||'';document.getElementById('newCode').value=d.new_code||'';const rows=d.rows||[];let html='<thead><tr><th>Step</th><th>P rail (MPa)</th><th>PW (us)</th><th>Q ref (mm3/H)</th><th>Q real (mm3/H)</th><th>BIP (us)</th><th>Assess</th></tr></thead><tbody>';rows.forEach(r=>{const pass=r.assess==='pass';html+='<tr class="'+(pass?'':'fail-row')+'"><td><strong>'+r.step+'</strong></td><td>'+r.p_rail+'</td><td>'+r.pw+'</td><td>'+r.q_ref+'</td><td>'+r.q_real+'</td><td>'+r.bip+'</td><td class="'+(pass?'pass':'fail')+'">'+(pass?'✓':'✗')+'</td></tr>';});html+='</tbody>';document.getElementById('extractedTable').innerHTML=html;const fails=rows.filter(r=>r.assess!=='pass').map(r=>r.step);document.getElementById('resultNote').value=fails.length?'Step(s) outside reference range: '+fails.join(', ')+'. Injector may require further inspection or replacement.':'All test steps within reference range. Injector passed.';document.getElementById('generateBtn').innerHTML='Generate Report';}
-function downloadPDF(){const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:'mm',format:'a4'});const PW=210,PH=297,d=extractedData,rows=d.rows||[];doc.setFillColor(10,10,10);doc.rect(0,0,PW,52,'F');doc.setFillColor(232,92,0);doc.rect(0,52,PW*0.6,2,'F');doc.setFillColor(109,179,63);doc.rect(PW*0.6,52,PW*0.4,2,'F');try{doc.addImage(logoDataUrl,'JPEG',8,3,44,44);}catch(e){}doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(15);doc.text('Common Rail Injector Test Report',58,18);doc.setFont('helvetica','normal');doc.setFontSize(8);doc.text('Diesel Diagnostics  |  Common Rail Injector Testing',58,26);doc.text('15-17 Fitzgerald Street, Ferntree Gully VIC  |  PH: 9756 0488',58,32);let y=64;doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(10,10,10);doc.text('Template Layout',14,y);doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(100,100,100);doc.text('Standard Titan Mechanical 4WD injector bench report format',14,y+5);y+=13;const bH=12,c1=14,c2=50,c3=115,c4=150,iW=PW-28;const fields=[['Client Name',document.getElementById('clientName').value,'Vehicle Rego',document.getElementById('vehicleRego').value],['Cylinder Number',document.getElementById('cylinderNo').value,'Part Number',document.getElementById('partNumber').value],['Manufacturer',document.getElementById('manufacturer').value,'Test Date',document.getElementById('testDate').value],['New Code',document.getElementById('newCode').value,'Serial Number',document.getElementById('serialNumber').value]];doc.setFillColor(255,255,255);doc.setDrawColor(200,200,200);doc.setLineWidth(0.3);fields.forEach((row,i)=>{const ry=y+i*bH;doc.rect(c1,ry,iW,bH,'FD');doc.line(c3-1,ry,c3-1,ry+bH);doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(120,120,120);doc.text(row[0],c1+2,ry+4.5);doc.text(row[2],c3+2,ry+4.5);doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(20,20,20);doc.text(row[1]||'',c2,ry+9);doc.text(row[3]||'',c4,ry+9);});y+=fields.length*bH+10;doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(10,10,10);doc.text('Detailed Flow Results',14,y);doc.setDrawColor(200,200,200);doc.line(14,y+2,PW-14,y+2);y+=8;const cols=[22,22,20,40,28,20,22];const hdrs=['Step','P rail\nMPa','PW\nus','Q ref\nmm3/H','Q real\nmm3/H','BIP\nus','Assess'];const rH=11;let x=14;doc.setFillColor(10,10,10);cols.forEach((w,i)=>{doc.rect(x,y,w,rH,'F');doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(255,255,255);const lines=hdrs[i].split('\n');if(lines.length>1){doc.text(lines[0],x+w/2,y+4,{align:'center'});doc.text(lines[1],x+w/2,y+8.5,{align:'center'});}else{doc.text(lines[0],x+w/2,y+6.5,{align:'center'});}x+=w;});rows.forEach((r,idx)=>{const ry=y+rH+idx*rH;x=14;const isFail=r.assess!=='pass';const bg=isFail?[255,235,235]:idx%2===0?[255,255,255]:[248,248,248];doc.setFillColor(...bg);doc.setDrawColor(200,200,200);doc.setLineWidth(0.3);cols.forEach(w=>{doc.rect(x,ry,w,rH,'FD');x+=w;});const vals=[r.step,r.p_rail,r.pw,r.q_ref,r.q_real,r.bip,r.assess==='pass'?'✓':'✗'];x=14;cols.forEach((w,ci)=>{doc.setFont('helvetica',ci===0?'bold':'normal');if(ci===6){doc.setFontSize(11);doc.setTextColor(isFail?180:46,isFail?0:125,isFail?0:50);}else{doc.setFontSize(8.5);doc.setTextColor(30,30,30);}doc.text(vals[ci]||'',x+w/2,ry+7,{align:'center'});x+=w;});});y=y+rH+rows.length*rH+10;doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(10,10,10);doc.text('Result Note',14,y);doc.setDrawColor(200,200,200);doc.line(14,y+2,PW-14,y+2);y+=7;doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(50,50,50);const noteLines=doc.splitTextToSize(document.getElementById('resultNote').value,PW-28);doc.text(noteLines,14,y);doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(100,100,100);doc.text('Titan Mechanical 4WD - Client copy.',14,PH-8);doc.text('Page 1',PW-14,PH-8,{align:'right'});const name=document.getElementById('clientName').value.replace(/\s+/g,'_');const rego=document.getElementById('vehicleRego').value;doc.save('Titan_Report_'+name+'_'+rego+'.pdf');}
-function resetApp(){['clientName','vehicleRego','cylinderNo','partNumber','manufacturer','serialNumber','newCode'].forEach(id=>document.getElementById(id).value='');const t=new Date();document.getElementById('testDate').value=String(t.getDate()).padStart(2,'0')+'/'+String(t.getMonth()+1).padStart(2,'0')+'/'+t.getFullYear();document.getElementById('photoPreview').style.display='none';document.getElementById('photoInput').value='';document.getElementById('cardPreview').style.display='none';document.getElementById('statusBox').style.display='none';document.getElementById('generateBtn').innerHTML='Generate Report';photoBase64=null;extractedData=null;checkReady();}
+
+async function generateReport(){
+  const btn=document.getElementById('generateBtn');
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Reading test photo...';
+  showStatus('<span class="spinner"></span> Claude AI is reading your photo...','info');
+  try{
+    const resp=await fetch('/api/extract',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({imageBase64:photoBase64,imageMime:photoMime,apiKey:document.getElementById('apiKey').value.trim()})
+    });
+    const data=await resp.json();
+    if(!resp.ok) throw new Error(data.error||'API error');
+    extractedData=data;
+    showExtracted();
+    showStatus('✅ Data extracted — review below then download your PDF.','success');
+  }catch(err){
+    showStatus('❌ Error: '+err.message,'error');
+    btn.disabled=false; btn.innerHTML='Generate Report';
+  }
+}
+
+function showExtracted(){
+  document.getElementById('cardPreview').style.display='block';
+  const d=extractedData;
+  document.getElementById('partNumber').value=d.part_number||'';
+  document.getElementById('manufacturer').value=d.manufacturer||'';
+  document.getElementById('serialNumber').value=d.serial_number||'';
+  document.getElementById('newCode').value=d.new_code||'';
+  const rows=d.rows||[];
+  let html='<thead><tr><th>Step</th><th>P rail (MPa)</th><th>PW (us)</th><th>Q ref (mm3/H)</th><th>Q real (mm3/H)</th><th>BIP (us)</th><th>Assess</th></tr></thead><tbody>';
+  rows.forEach(r=>{
+    const pass=r.assess==='pass';
+    html+='<tr class="'+(pass?'':'fail-row')+'"><td><strong>'+r.step+'</strong></td><td>'+r.p_rail+'</td><td>'+r.pw+'</td><td>'+r.q_ref+'</td><td>'+r.q_real+'</td><td>'+r.bip+'</td><td class="'+(pass?'pass':'fail')+'">'+(pass?'✓':'✗')+'</td></tr>';
+  });
+  html+='</tbody>';
+  document.getElementById('extractedTable').innerHTML=html;
+  const fails=rows.filter(r=>r.assess!=='pass').map(r=>r.step);
+  document.getElementById('resultNote').value=fails.length
+    ?'Step(s) outside reference range: '+fails.join(', ')+'. Injector may require further inspection or replacement.'
+    :'All test steps within reference range. Injector passed.';
+  document.getElementById('generateBtn').innerHTML='Generate Report';
+}
+
+function downloadPDF(){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'mm',format:'a4'});
+  const PW=210,PH=297,d=extractedData,rows=d.rows||[];
+  doc.setFillColor(10,10,10); doc.rect(0,0,PW,52,'F');
+  doc.setFillColor(232,92,0); doc.rect(0,52,PW*0.6,2,'F');
+  doc.setFillColor(109,179,63); doc.rect(PW*0.6,52,PW*0.4,2,'F');
+  try{ doc.addImage(logoDataUrl,'JPEG',8,3,44,44); }catch(e){}
+  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(15);
+  doc.text('Common Rail Injector Test Report',58,18);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8);
+  doc.text('Diesel Diagnostics  |  Common Rail Injector Testing',58,26);
+  doc.text('15-17 Fitzgerald Street, Ferntree Gully VIC  |  PH: 9756 0488',58,32);
+  let y=64;
+  doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(10,10,10);
+  doc.text('Template Layout',14,y);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(100,100,100);
+  doc.text('Standard Titan Mechanical 4WD injector bench report format',14,y+5);
+  y+=13;
+  const bH=12,c1=14,c2=50,c3=115,c4=150,iW=PW-28;
+  const fields=[
+    ['Client Name',document.getElementById('clientName').value,'Vehicle Rego',document.getElementById('vehicleRego').value],
+    ['Cylinder Number',document.getElementById('cylinderNo').value,'Part Number',document.getElementById('partNumber').value],
+    ['Manufacturer',document.getElementById('manufacturer').value,'Test Date',document.getElementById('testDate').value],
+    ['New Code',document.getElementById('newCode').value,'Serial Number',document.getElementById('serialNumber').value],
+  ];
+  doc.setDrawColor(200,200,200); doc.setLineWidth(0.3);
+  fields.forEach((row,i)=>{
+    const ry=y+i*bH;
+    doc.setFillColor(255,255,255); doc.rect(c1,ry,iW,bH,'FD'); doc.line(c3-1,ry,c3-1,ry+bH);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(120,120,120);
+    doc.text(row[0],c1+2,ry+4.5); doc.text(row[2],c3+2,ry+4.5);
+    doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(20,20,20);
+    doc.text(row[1]||'',c2,ry+9); doc.text(row[3]||'',c4,ry+9);
+  });
+  y+=fields.length*bH+10;
+  doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(10,10,10);
+  doc.text('Detailed Flow Results',14,y);
+  doc.setDrawColor(200,200,200); doc.line(14,y+2,PW-14,y+2); y+=8;
+  const cols=[22,22,20,40,28,20,22];
+  const hdrs=['Step','P rail\nMPa','PW\nus','Q ref\nmm3/H','Q real\nmm3/H','BIP\nus','Assess'];
+  const rH=11; let x=14;
+  doc.setFillColor(10,10,10);
+  cols.forEach((w,i)=>{
+    doc.rect(x,y,w,rH,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(255,255,255);
+    const lines=hdrs[i].split('\n');
+    if(lines.length>1){doc.text(lines[0],x+w/2,y+4,{align:'center'});doc.text(lines[1],x+w/2,y+8.5,{align:'center'});}
+    else{doc.text(lines[0],x+w/2,y+6.5,{align:'center'});}
+    x+=w;
+  });
+  rows.forEach((r,idx)=>{
+    const ry=y+rH+idx*rH; x=14;
+    const isFail=r.assess!=='pass';
+    const bg=isFail?[255,235,235]:idx%2===0?[255,255,255]:[248,248,248];
+    doc.setFillColor(...bg); doc.setDrawColor(200,200,200); doc.setLineWidth(0.3);
+    cols.forEach(w=>{doc.rect(x,ry,w,rH,'FD');x+=w;});
+    const vals=[r.step,r.p_rail,r.pw,r.q_ref,r.q_real,r.bip,r.assess==='pass'?'\u2713':'\u2717'];
+    x=14;
+    cols.forEach((w,ci)=>{
+      doc.setFont('helvetica',ci===0?'bold':'normal');
+      if(ci===6){doc.setFontSize(11);doc.setTextColor(isFail?180:46,isFail?0:125,isFail?0:50);}
+      else{doc.setFontSize(8.5);doc.setTextColor(30,30,30);}
+      doc.text(vals[ci]||'',x+w/2,ry+7,{align:'center'});
+      x+=w;
+    });
+  });
+  y=y+rH+rows.length*rH+10;
+  doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(10,10,10);
+  doc.text('Result Note',14,y);
+  doc.setDrawColor(200,200,200); doc.line(14,y+2,PW-14,y+2); y+=7;
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(50,50,50);
+  const noteLines=doc.splitTextToSize(document.getElementById('resultNote').value,PW-28);
+  doc.text(noteLines,14,y);
+  doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(100,100,100);
+  doc.text('Titan Mechanical 4WD - Client copy.',14,PH-8);
+  doc.text('Page 1',PW-14,PH-8,{align:'right'});
+  const name=document.getElementById('clientName').value.replace(/\s+/g,'_');
+  const rego=document.getElementById('vehicleRego').value;
+  doc.save('Titan_Report_'+name+'_'+rego+'.pdf');
+}
+
+function resetApp(){
+  ['clientName','vehicleRego','cylinderNo','partNumber','manufacturer','serialNumber','newCode'].forEach(id=>document.getElementById(id).value='');
+  const t=new Date();
+  document.getElementById('testDate').value=String(t.getDate()).padStart(2,'0')+'/'+String(t.getMonth()+1).padStart(2,'0')+'/'+t.getFullYear();
+  document.getElementById('photoPreview').style.display='none';
+  document.getElementById('photoInput').value='';
+  document.getElementById('cardPreview').style.display='none';
+  document.getElementById('statusBox').style.display='none';
+  document.getElementById('generateBtn').innerHTML='Generate Report';
+  photoBase64=null; extractedData=null; checkReady();
+}
 </script>
 </body>
 </html>
