@@ -237,11 +237,7 @@ function downloadPDF(){
   doc.text('Diesel Diagnostics  |  Common Rail Injector Testing',58,26);
   doc.text('15-17 Fitzgerald Street, Ferntree Gully VIC  |  PH: 9756 0488',58,32);
   let y=64;
-  doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(10,10,10);
-  doc.text('Template Layout',14,y);
-  doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(100,100,100);
-  doc.text('Standard Titan Mechanical 4WD injector bench report format',14,y+5);
-  y+=13;
+  y+=4;
   const bH=12,c1=14,c2=50,c3=115,c4=150,iW=PW-28;
   const fields=[
     ['Client Name',document.getElementById('clientName').value,'Vehicle Rego',document.getElementById('vehicleRego').value],
