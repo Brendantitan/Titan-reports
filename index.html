@@ -258,9 +258,9 @@ function downloadPDF(){
   doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(10,10,10);
   doc.text('Detailed Flow Results',14,y);
   doc.setDrawColor(200,200,200); doc.line(14,y+2,PW-14,y+2); y+=8;
-  const cols=[22,22,20,40,28,20,22];
+  const cols=[24,24,20,42,28,20,16];
   const hdrs=['Step','P rail\nMPa','PW\nus','Q ref\nmm3/H','Q real\nmm3/H','BIP\nus','Assess'];
-  const rH=11; let x=14;
+  const rH=13; let x=14;
   doc.setFillColor(10,10,10);
   cols.forEach((w,i)=>{
     doc.rect(x,y,w,rH,'F');
@@ -282,7 +282,7 @@ function downloadPDF(){
       doc.setFont('helvetica',ci===0?'bold':'normal');
       if(ci===6){doc.setFontSize(11);doc.setTextColor(isFail?180:46,isFail?0:125,isFail?0:50);}
       else{doc.setFontSize(8.5);doc.setTextColor(30,30,30);}
-      doc.text(vals[ci]||'',x+w/2,ry+7,{align:'center'});
+      doc.text(vals[ci]||'',x+w/2,ry+8,{align:'center'});
       x+=w;
     });
   });
