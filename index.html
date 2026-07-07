@@ -261,9 +261,9 @@ function downloadPDF(){
   const cols=[24,24,20,42,28,20,16];
   const hdrs=['Step','P rail\nMPa','PW\nus','Q ref\nmm3/H','Q real\nmm3/H','BIP\nus','Assess'];
   const rH=13; let x=14;
-  doc.setFillColor(10,10,10);
+  doc.setFillColor(10,10,10); x=14;
   cols.forEach((w,i)=>{
-    doc.rect(x,y,w,rH,'F');
+    doc.setFillColor(10,10,10); doc.setDrawColor(80,80,80); doc.rect(x,y,w,rH,'FD');
     doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(255,255,255);
     const lines=hdrs[i].split('\n');
     if(lines.length>1){doc.text(lines[0],x+w/2,y+5,{align:'center'});doc.text(lines[1],x+w/2,y+10,{align:'center'});}
